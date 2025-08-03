@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .test-box {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Debug Test Page</h1>
+    
+    <div class="test-box">
+        <h2>CSS Test</h2>
+        <p>If you can see this styled dark theme, CSS is working.</p>
+    </div>
+    
+    <div class="test-box">
+        <h2>JavaScript Test</h2>
+        <button id="test-btn">Click me</button>
+        <p id="test-result">JavaScript not loaded yet...</p>
+    </div>
+    
+    <div class="test-box">
+        <h2>External CSS Test</h2>
+        <p>Testing if external CSS loads...</p>
+        <link rel="stylesheet" href="css/style.css">
+        <div class="btn btn-primary">This should be styled if CSS loads</div>
+    </div>
+
+    <script>
+        console.log('Debug script running...');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            const testBtn = document.getElementById('test-btn');
+            const testResult = document.getElementById('test-result');
+            
+            if (testBtn && testResult) {
+                testResult.textContent = 'JavaScript is working!';
+                testBtn.addEventListener('click', function() {
+                    testResult.textContent = 'Button clicked! JavaScript events working.';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

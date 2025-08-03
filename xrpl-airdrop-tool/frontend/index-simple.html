@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XRPL Airdrop Tool</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                XRPL<span>Trader</span>
+            </div>
+            <div class="connection-status" id="connection-status">
+                <div class="status-indicator" id="status-indicator"></div>
+                <span id="connection-text">Not Connected</span>
+                <button class="btn btn-primary" id="connect-wallet">Connect Wallet</button>
+            </div>
+        </div>
+
+        <!-- Main Title -->
+        <div class="main-title">
+            <h1>Automated Token Distribution</h1>
+            <p>Execute efficient token airdrops with multiple execution methods and real-time monitoring</p>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Left Panel: Setup -->
+            <div class="section">
+                <h2 class="section-title">Distribution Setup</h2>
+                
+                <!-- Token Selection -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="token-select">Select Token</label>
+                        <select id="token-select">
+                            <option value="">Choose a token...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="token-amount">Amount per Recipient</label>
+                        <input type="number" id="token-amount" placeholder="10" step="0.000001">
+                    </div>
+                </div>
+
+                <!-- Recipients Management -->
+                <div class="form-group">
+                    <label for="recipient-file">Recipients File</label>
+                    <input type="file" id="recipient-file" accept=".txt,.csv" />
+                    <div class="mt-1">
+                        <small style="color: #999;">Upload .txt or .csv file with wallet addresses (one per line)</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="manual-address">Add Manual Address</label>
+                        <input type="text" id="manual-address" placeholder="rXXXXXXXXXXXXXXXXXXXXXXXXX">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: end;">
+                        <button class="btn btn-secondary" id="add-recipient">Add Recipient</button>
+                    </div>
+                </div>
+
+                <!-- Recipients List -->
+                <div class="form-group">
+                    <label>Recipients (<span id="recipient-count">0</span>)</label>
+                    <div class="recipients-list" id="recipients-list">
+                        <p style="color: #999; text-align: center; padding: 20px;">No recipients added yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Execution -->
+            <div class="section">
+                <h2 class="section-title">Execution Methods</h2>
+                
+                <!-- Token Display -->
+                <div class="token-display" id="selected-token-display" style="display: none;">
+                    <div class="token-info">
+                        <div class="token-name" id="display-token-name">Token Name</div>
+                        <div class="token-balance" id="display-token-balance">Balance: 0</div>
+                    </div>
+                    <div class="token-amount">
+                        <strong id="display-total-amount">0</strong> <span id="display-currency">TOKEN</span>
+                    </div>
+                </div>
+
+                <!-- Progress -->
+                <div class="progress-container" id="progress-container" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">Ready to start...</div>
+                </div>
+
+                <!-- Execution Buttons -->
+                <div class="execution-methods">
+                    <div class="method-card">
+                        <div class="method-title">Sequential Payments</div>
+                        <div class="method-description">
+                            Cost-effective automated payments using only transaction fees (~0.000012 XRP each)
+                        </div>
+                        <button class="btn btn-primary" id="execute-airdrop">Execute Airdrop</button>
+                    </div>
+
+                    <div class="method-card">
+                        <div class="method-title">Batch Processing</div>
+                        <div class="method-description">
+                            Create batch authorization through Xaman for one-signature execution
+                        </div>
+                        <button class="btn btn-secondary" id="execute-batch">Execute Batch</button>
+                    </div>
+
+                    <div class="method-card">
+                        <div class="method-title">Simulated Mode</div>
+                        <div class="method-description">
+                            Test the flow without real transactions for validation and testing
+                        </div>
+                        <button class="btn btn-secondary" id="execute-simulated">Test Simulation</button>
+                    </div>
+                </div>
+
+                <!-- Cost Estimation -->
+                <div class="form-group">
+                    <div class="alert alert-info" id="cost-estimation" style="display: none;">
+                        <strong>Cost Estimation:</strong>
+                        <div id="cost-details"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="section" id="results-section" style="display: none;">
+            <h2 class="section-title">Transaction Results</h2>
+            <div class="results-container" id="results-container">
+                <!-- Results will be populated here -->
+            </div>
+            <div class="mt-2 text-center">
+                <button class="btn btn-secondary" id="export-results">Export Results</button>
+                <button class="btn btn-secondary" id="clear-results">Clear Results</button>
+            </div>
+        </div>
+
+        <!-- QR Code Display -->
+        <div class="qr-display" id="qr-display" style="display: none;">
+            <h3 style="color: #f5d942; margin-bottom: 15px;">Scan QR Code in Xaman</h3>
+            <img id="qr-image" src="" alt="QR Code" />
+            <p style="color: #999; margin-top: 10px;">Scan this code with your Xaman app to authorize the transaction</p>
+        </div>
+    </div>
+
+    <!-- Basic JavaScript - No external dependencies -->
+    <script>
+        console.log('XRPL Airdrop Tool loaded - Basic version');
+        
+        // Initialize basic state
+        window.state = { recipients: [] };
+        
+        // Basic button click handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            // Add click handler for connect wallet button
+            document.getElementById('connect-wallet')?.addEventListener('click', function() {
+                alert('Wallet connection functionality will be loaded when external scripts are working properly.');
+            });
+            
+            // Add click handler for execute buttons
+            document.getElementById('execute-airdrop')?.addEventListener('click', function() {
+                alert('Airdrop execution functionality will be loaded when external scripts are working properly.');
+            });
+            
+            console.log('Basic event handlers attached');
+        });
+    </script>
+</body>
+</html>

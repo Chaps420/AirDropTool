@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XRPL Airdrop Tool - Test</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f5d942;
+        }
+        
+        .logo span {
+            color: #e0e0e0;
+        }
+        
+        .main-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .main-title h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #f5d942;
+            margin-bottom: 10px;
+        }
+        
+        .main-title p {
+            color: #999;
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .test-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            background: linear-gradient(135deg, #f5d942 0%, #e6c235 100%);
+            color: #000;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 217, 66, 0.3);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                XRPL<span>Trader</span>
+            </div>
+            <div>
+                <button class="btn">Test Button</button>
+            </div>
+        </div>
+
+        <!-- Main Title -->
+        <div class="main-title">
+            <h1>Test Page - Dark Theme</h1>
+            <p>If you can see this dark themed page, the HTML is working correctly</p>
+        </div>
+
+        <!-- Test Content -->
+        <div class="test-card">
+            <h2 style="color: #f5d942; margin-bottom: 15px;">Test Card</h2>
+            <p>This is a test to verify that the HTML and CSS are loading properly. If you see this dark interface with golden accents, the styling is working.</p>
+            <br>
+            <p><strong>What you should see:</strong></p>
+            <ul style="color: #ccc; margin: 10px 0 0 20px;">
+                <li>Dark gradient background</li>
+                <li>Golden "XRPLTrader" logo</li>
+                <li>This card with dark styling</li>
+                <li>Golden accents and highlights</li>
+            </ul>
+        </div>
+        
+        <div class="test-card">
+            <h3 style="color: #f5d942;">If you see a white page instead:</h3>
+            <p style="color: #ccc;">The issue might be:</p>
+            <ol style="color: #ccc; margin: 10px 0 0 20px;">
+                <li>CSS file not loading properly</li>
+                <li>Browser cache issues</li>
+                <li>JavaScript errors preventing rendering</li>
+                <li>File path issues</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>
