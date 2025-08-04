@@ -3,184 +3,405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XRPL Airdrop Tool</title>
+    <title>XRPL Airdrop Tool - Production</title>
     <link rel="stylesheet" href="css/style.css">
+    
+    <!-- XRPL.js Library -->
+    <script src="https://unpkg.com/xrpl@2.7.0/dist/xrpl-latest-min.js"></script>
+    
     <style>
-        .github-pages-notice {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* Production-specific styles */
+        .production-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            padding: 20px;
-            margin: 20px;
-            border-radius: 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .security-notice {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
             text-align: center;
         }
-        .download-section {
-            background: #f8f9fa;
+        
+        .trust-line-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        /* Core application styles */
+        .wallet-section, .token-section, .recipients-section, 
+        .distribution-section, .preview-section, .execute-section, 
+        .results-section {
+            background: white;
             padding: 30px;
-            margin: 20px;
-            border-radius: 10px;
-            text-align: center;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .download-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 30px;
+
+        .btn {
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
             cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin: 10px;
-            transition: transform 0.2s;
+            font-size: 16px;
+            transition: all 0.3s ease;
         }
-        .download-btn:hover {
-            transform: translateY(-2px);
+
+        .btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
-        .feature-grid {
+
+        .btn.secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn.large {
+            padding: 16px 32px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8faff;
+        }
+
+        .method-selector {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 20px;
+            gap: 15px;
+            margin: 20px 0;
         }
-        .feature-card {
-            background: white;
-            padding: 20px;
+
+        .method-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .method-option:hover {
+            border-color: #667eea;
+            background: #f8faff;
+        }
+
+        .method-option input[type="radio"] {
+            margin-right: 12px;
+        }
+
+        .progress-bar {
+            background: #e5e7eb;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e1e5e9;
+            height: 20px;
+            overflow: hidden;
+            margin: 20px 0;
         }
-        .feature-icon {
-            font-size: 2em;
-            margin-bottom: 10px;
+
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .status-text {
+            text-align: center;
+            color: #667eea;
+            margin: 15px 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1>🚀 XRPL Airdrop Tool</h1>
-            <p>Professional XRPL token distribution platform</p>
-        </header>
-
-        <div class="github-pages-notice">
-            <h2>📱 Demo Version on GitHub Pages</h2>
-            <p>This is a static demo. For the full application with backend functionality, download and run locally.</p>
-        </div>
-
-        <div class="download-section">
-            <h2>🔗 Get the Full Application</h2>
-            <p>Download the complete XRPL Airdrop Tool to run locally with all features:</p>
-            <a href="https://github.com/Chaps420/AirDropTool/archive/refs/heads/master.zip" class="download-btn">
-                📥 Download ZIP
-            </a>
-            <a href="https://github.com/Chaps420/AirDropTool" class="download-btn">
-                📂 View on GitHub
-            </a>
-        </div>
-
-        <div class="feature-grid">
-            <div class="feature-card">
-                <div class="feature-icon">💰</div>
-                <h3>Multi-Token Support</h3>
-                <p>Distribute XRP and custom XRPL tokens with precision and reliability.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <h3>Multiple Distribution Methods</h3>
-                <p>Equal distribution, proportional allocation, or custom amounts per recipient.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">🔐</div>
-                <h3>Xaman Integration</h3>
-                <p>Secure wallet connection via Xaman (formerly XUMM) for safe transactions.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">⚡</div>
-                <h3>Batch Processing</h3>
-                <p>Efficient batch payments with XRPL ticket system for optimal performance.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">📈</div>
-                <h3>Real-time Tracking</h3>
-                <p>Monitor payment progress with live updates and detailed transaction logs.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">🛡️</div>
-                <h3>Built-in Validation</h3>
-                <p>Address validation, balance checking, and error handling for safe operations.</p>
-            </div>
-        </div>
-
-        <div class="main-content">
-            <div class="section">
-                <h2>🎯 Quick Start Guide</h2>
-                <ol style="text-align: left; max-width: 600px; margin: 0 auto;">
-                    <li><strong>Download:</strong> Get the tool from GitHub</li>
-                    <li><strong>Install:</strong> Run <code>pip install -r requirements.txt</code></li>
-                    <li><strong>Launch:</strong> Execute <code>python start_airdrop_tool.py</code></li>
-                    <li><strong>Connect:</strong> Use Xaman wallet to connect securely</li>
-                    <li><strong>Distribute:</strong> Upload recipient list and start your airdrop</li>
-                </ol>
-            </div>
-
-            <div class="section">
-                <h2>📋 System Requirements</h2>
-                <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
-                    <li>Python 3.7+</li>
-                    <li>Modern web browser</li>
-                    <li>Xaman mobile app</li>
-                    <li>XRPL testnet/mainnet access</li>
-                </ul>
-            </div>
-
-            <div class="section">
-                <h2>🔧 Technical Features</h2>
-                <div style="text-align: left; max-width: 600px; margin: 0 auto;">
-                    <h3>Backend (Python/Flask)</h3>
-                    <ul>
-                        <li>RESTful API architecture</li>
-                        <li>XRPL network integration</li>
-                        <li>Ticket-based batch processing</li>
-                        <li>Real-time WebSocket updates</li>
-                    </ul>
-
-                    <h3>Frontend (JavaScript)</h3>
-                    <ul>
-                        <li>Modern responsive UI</li>
-                        <li>Real-time progress tracking</li>
-                        <li>CSV/TXT file upload support</li>
-                        <li>Interactive transaction monitoring</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <footer style="margin-top: 50px; padding: 20px; border-top: 1px solid #e1e5e9; color: #666;">
-            <p>© 2025 XRPL Airdrop Tool - Open Source Project</p>
-            <p>
-                <a href="https://github.com/Chaps420/AirDropTool" style="color: #667eea;">GitHub Repository</a> |
-                <a href="https://xrpl.org" style="color: #667eea;">XRPL Documentation</a> |
-                <a href="https://xaman.app" style="color: #667eea;">Xaman Wallet</a>
-            </p>
-        </footer>
+    <!-- Production Badge -->
+    <div class="production-badge">
+        🔒 MAINNET PRODUCTION
     </div>
 
-    <script>
-        // Demo functionality for GitHub Pages
-        console.log('XRPL Airdrop Tool - GitHub Pages Demo');
-        
-        // Show demo notice
-        setTimeout(() => {
-            if (confirm('This is a demo version. Would you like to download the full application?')) {
-                window.open('https://github.com/Chaps420/AirDropTool', '_blank');
-            }
-        }, 3000);
-    </script>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🚀 XRPL Airdrop Tool</h1>
+            <p class="subtitle">Professional token distribution on XRPL Mainnet</p>
+            
+            <div class="security-notice">
+                🔐 <strong>Secure Xaman Signing</strong> - Your seed phrase never leaves your device
+            </div>
+        </header>
+
+        <!-- Wallet Connection Section -->
+        <section class="wallet-section">
+            <h2>💳 Wallet Connection</h2>
+            <div class="wallet-status" id="wallet-status">
+                <p>Connect your Xaman wallet to begin</p>
+                <button class="btn primary" id="connect-wallet-btn">
+                    Connect with Xaman
+                </button>
+            </div>
+        </section>
+
+        <!-- Token Configuration Section -->
+        <section class="token-section" style="display: none;" id="token-section">
+            <h2>🪙 Token Configuration</h2>
+            <div class="form-group">
+                <label>Token Type:</label>
+                <select id="token-type">
+                    <option value="XRP">XRP (Native)</option>
+                    <option value="custom">Custom Token</option>
+                </select>
+            </div>
+            
+            <div id="custom-token-config" style="display: none;">
+                <div class="form-group">
+                    <label>Currency Code:</label>
+                    <input type="text" id="currency-code" placeholder="e.g., USD, EUR, SOLO" maxlength="3">
+                </div>
+                
+                <div class="form-group">
+                    <label>Issuer Address:</label>
+                    <input type="text" id="issuer-address" placeholder="rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH">
+                </div>
+                
+                <div class="trust-line-warning">
+                    ⚠️ Recipients must have trust lines set for custom tokens
+                </div>
+            </div>
+        </section>
+
+        <!-- Recipients Section -->
+        <section class="recipients-section" style="display: none;" id="recipients-section">
+            <h2>📋 Recipients</h2>
+            
+            <div class="upload-area" id="upload-area">
+                <div class="upload-content">
+                    <div class="upload-icon">�</div>
+                    <h3>Upload Recipients File</h3>
+                    <p>Drop CSV or TXT file here, or click to browse</p>
+                    <input type="file" id="file-input" accept=".csv,.txt" hidden>
+                    <button class="btn secondary" onclick="document.getElementById('file-input').click()">
+                        Choose File
+                    </button>
+                </div>
+            </div>
+            
+            <div class="file-format-help">
+                <h4>File Format:</h4>
+                <div class="format-examples">
+                    <div class="format-example">
+                        <strong>CSV Format:</strong>
+                        <code>address,amount<br>rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH,100<br>rPEPPER7kfTD9w2To4CQk6UCfuHM9c6GDY,250</code>
+                    </div>
+                    <div class="format-example">
+                        <strong>TXT Format:</strong>
+                        <code>rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH,100<br>rPEPPER7kfTD9w2To4CQk6UCfuHM9c6GDY,250</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Distribution Configuration -->
+        <section class="distribution-section" style="display: none;" id="distribution-section">
+            <h2>⚖️ Distribution Method</h2>
+            
+            <div class="method-selector">
+                <label class="method-option">
+                    <input type="radio" name="distribution-method" value="equal" checked>
+                    <span class="method-label">
+                        <strong>Equal Distribution</strong>
+                        <small>Same amount to all recipients</small>
+                    </span>
+                </label>
+                
+                <label class="method-option">
+                    <input type="radio" name="distribution-method" value="proportional">
+                    <span class="method-label">
+                        <strong>Proportional</strong>
+                        <small>Based on existing balances</small>
+                    </span>
+                </label>
+                
+                <label class="method-option">
+                    <input type="radio" name="distribution-method" value="custom">
+                    <span class="method-label">
+                        <strong>Custom Amounts</strong>
+                        <small>Amounts specified in file</small>
+                    </span>
+                </label>
+            </div>
+            
+            <div id="equal-config" class="distribution-config">
+                <div class="form-group">
+                    <label>Amount per recipient:</label>
+                    <input type="number" id="equal-amount" placeholder="100" step="0.000001" min="0.000001">
+                </div>
+            </div>
+            
+            <div id="proportional-config" class="distribution-config" style="display: none;">
+                <div class="form-group">
+                    <label>Total amount to distribute:</label>
+                    <input type="number" id="total-amount" placeholder="10000" step="0.000001" min="0.000001">
+                </div>
+            </div>
+        </section>
+
+        <!-- Preview Section -->
+        <section class="preview-section" style="display: none;" id="preview-section">
+            <h2>� Distribution Preview</h2>
+            <div id="preview-content"></div>
+            <div class="preview-summary" id="preview-summary"></div>
+        </section>
+
+        <!-- Execute Section -->
+        <section class="execute-section" style="display: none;" id="execute-section">
+            <h2>🚀 Execute Airdrop</h2>
+            <div class="execute-info">
+                <p>Ready to execute your airdrop with Xaman signing.</p>
+                <p><strong>🔐 Secure:</strong> Your seed phrase never leaves your device</p>
+                <p><strong>📱 Simple:</strong> Just scan QR code in Xaman app to approve</p>
+            </div>
+            
+            <button class="btn primary large" id="execute-btn">
+                🔐 Sign & Execute with Xaman
+            </button>
+            
+            <div class="progress-section" id="progress-section" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">Preparing airdrop...</div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" style="display: none;" id="results-section">
+            <h2>✅ Airdrop Results</h2>
+            <div id="results-content"></div>
+        </section>
+    </div>
+
+    <!-- Xaman QR Modal -->
+    <div id="xaman-qr-container" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔐 Connect Xaman Wallet</h3>
+                <button id="close-qr-modal" class="close-btn">&times;</button>
+            </div>
+            
+            <div class="qr-section">
+                <div id="xaman-qr-code" class="qr-code">
+                    Loading QR code...
+                </div>
+                
+                <div id="xaman-status-text" class="status-text">
+                    Preparing connection...
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <p>Scan the QR code with your Xaman app to connect</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Progress Modal -->
+    <div id="payment-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔐 Xaman Payment Signing</h3>
+            </div>
+            <div class="modal-body">
+                <div id="payment-qr-code" style="text-align: center; margin-bottom: 20px;">
+                    <img id="payment-qr-image" src="" alt="Payment QR Code" style="width: 256px; height: 256px;">
+                </div>
+                <div id="payment-status">
+                    <p id="payment-status-text">Preparing batch payment...</p>
+                </div>
+                <div id="payment-progress" style="margin-top: 20px;">
+                    <div class="progress-bar" style="width: 100%; height: 20px; background: #f3f4f6; border-radius: 10px; overflow: hidden;">
+                        <div id="payment-progress-fill" style="height: 100%; background: linear-gradient(90deg, #10b981, #059669); width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+                    <p id="payment-progress-text" style="margin-top: 10px; text-align: center;">Initializing...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <p>Scan with Xaman to sign and submit the batch payment</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/xaman-simple.js"></script>
+    <script src="js/xrpl-client.js"></script>
+    <script src="js/app-production.js"></script>
 </body>
 </html>
