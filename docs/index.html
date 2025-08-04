@@ -3,405 +3,748 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XRPL Airdrop Tool - Production</title>
-    <link rel="stylesheet" href="css/style.css">
-    
-    <!-- XRPL.js Library -->
-    <script src="https://unpkg.com/xrpl@2.7.0/dist/xrpl-latest-min.js"></script>
-    
+    <title>XRPL Airdrop Tool</title>
     <style>
-        /* Production-specific styles */
-        .production-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
+        /* Complete inline styling to eliminate any loading issues */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .logo {
+            font-size: 28px;
             font-weight: bold;
+            color: #ffffff;
         }
         
-        .security-notice {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            text-align: center;
+        .logo span {
+            color: #f5d942;
         }
         
-        .trust-line-warning {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px 0;
-            font-size: 14px;
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-
-        /* Core application styles */
-        .wallet-section, .token-section, .recipients-section, 
-        .distribution-section, .preview-section, .execute-section, 
-        .results-section {
-            background: white;
-            padding: 30px;
-            margin: 20px 0;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #666;
         }
-
+        
         .btn {
             padding: 12px 24px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
+            font-weight: 500;
             transition: all 0.3s ease;
         }
-
-        .btn.primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        
+        .btn-primary {
+            background: #f5d942;
+            color: #000;
         }
-
-        .btn.secondary {
-            background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
+        
+        .btn-primary:hover {
+            background: #e6c63a;
+            transform: translateY(-1px);
         }
-
-        .btn.large {
-            padding: 16px 32px;
-            font-size: 18px;
+        
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
         }
-
+        
+        .btn-secondary:hover {
+            background: #444;
+        }
+        
+        .main-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .main-title h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        
+        .main-title p {
+            color: #999;
+            font-size: 1.1rem;
+        }
+        
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            background: rgba(26, 26, 26, 0.8);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            backdrop-filter: blur(10px);
+        }
+        
+        .section-title {
+            color: #f5d942;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
         .form-group {
-            margin: 15px 0;
+            margin-bottom: 20px;
         }
-
+        
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #374151;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: 500;
         }
-
-        .form-group input, .form-group select {
+        
+        .form-group input,
+        .form-group select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #d1d5db;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 1px solid #444;
             border-radius: 6px;
-            font-size: 16px;
+            color: #fff;
+            font-size: 14px;
         }
-
-        .upload-area {
-            border: 2px dashed #d1d5db;
-            border-radius: 12px;
-            padding: 40px;
-            text-align: center;
-            transition: all 0.3s ease;
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #f5d942;
+            box-shadow: 0 0 0 2px rgba(245, 217, 66, 0.2);
         }
-
-        .upload-area:hover {
-            border-color: #667eea;
-            background: #f8faff;
+        
+        .recipients-list {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
         }
-
-        .method-selector {
+        
+        .execution-methods {
             display: grid;
             gap: 15px;
-            margin: 20px 0;
         }
-
-        .method-option {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border: 2px solid #e5e7eb;
+        
+        .method-card {
+            background: #2a2a2a;
+            padding: 20px;
             border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            border: 1px solid #444;
         }
-
-        .method-option:hover {
-            border-color: #667eea;
-            background: #f8faff;
+        
+        .method-title {
+            color: #f5d942;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
-
-        .method-option input[type="radio"] {
-            margin-right: 12px;
+        
+        .method-description {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
         }
-
-        .progress-bar {
-            background: #e5e7eb;
-            border-radius: 10px;
-            height: 20px;
-            overflow: hidden;
+        
+        .token-display {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .token-name {
+            color: #f5d942;
+            font-weight: 600;
+        }
+        
+        .token-balance {
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        .progress-container {
             margin: 20px 0;
         }
-
+        
+        .progress-bar {
+            background: #333;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+        
         .progress-fill {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5d942;
             height: 100%;
             width: 0%;
             transition: width 0.3s ease;
         }
+        
+        .progress-text {
+            margin-top: 10px;
+            color: #999;
+            text-align: center;
+        }
 
-        .modal {
+        .results-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(245, 217, 66, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(245, 217, 66, 0.2);
+        }
+
+        .results-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .alert-info {
+            background: rgba(245, 217, 66, 0.1);
+            border: 1px solid #f5d942;
+            color: #f5d942;
+        }
+
+        /* Distribution method radio buttons */
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            margin: 0;
+            width: auto;
+        }
+
+        /* Preview table styles */
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .preview-table th {
+            background: #333;
+            color: #f5d942;
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        .preview-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #333;
+            color: #e0e0e0;
+        }
+
+        .preview-table tfoot td {
+            background: #333;
+            color: #f5d942;
+            font-weight: bold;
+            border-top: 1px solid #444;
+        }
+
+        .format-help {
+            margin-top: 8px;
+            padding: 10px;
+            background: #2a2a2a;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+
+        /* TXT Values Configuration */
+        .txt-value-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #2a2a2a;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+
+        .txt-value-address {
+            flex: 1;
+            font-family: monospace;
+            color: #f5d942;
+            font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .txt-value-input {
+            width: 120px;
+            padding: 4px 8px;
+            background: #1a1a1a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        .txt-value-input:focus {
+            outline: none;
+            border-color: #f5d942;
+        }
+
+        /* Modal Overlay for QR Code */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
             display: flex;
-            align-items: center;
             justify-content: center;
-            z-index: 10000;
+            align-items: center;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background: white;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
             border-radius: 12px;
-            padding: 30px;
-            max-width: 400px;
+            border: 2px solid #f5d942;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            max-width: 450px;
             width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease-out;
         }
 
-        .qr-code {
-            text-align: center;
-            margin: 20px 0;
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
 
-        .status-text {
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid #444;
+        }
+
+        .modal-header h3 {
+            color: #f5d942;
+            margin: 0;
+            font-size: 1.4rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: #444;
+            color: #f5d942;
+        }
+
+        .modal-body {
+            padding: 25px;
             text-align: center;
-            color: #667eea;
-            margin: 15px 0;
+        }
+
+        .modal-body p {
+            color: #ccc;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .qr-code-container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px auto;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .connection-instructions {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            color: #e0e0e0;
+        }
+
+        .step-number {
+            background: #f5d942;
+            color: #000;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-title h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Production Badge -->
-    <div class="production-badge">
-        🔒 MAINNET PRODUCTION
-    </div>
-
     <div class="container">
         <!-- Header -->
-        <header class="header">
-            <h1>🚀 XRPL Airdrop Tool</h1>
-            <p class="subtitle">Professional token distribution on XRPL Mainnet</p>
-            
-            <div class="security-notice">
-                🔐 <strong>Secure Xaman Signing</strong> - Your seed phrase never leaves your device
+        <div class="header">
+            <div class="logo">
+                XRPL<span>Trader</span>
             </div>
-        </header>
-
-        <!-- Wallet Connection Section -->
-        <section class="wallet-section">
-            <h2>💳 Wallet Connection</h2>
-            <div class="wallet-status" id="wallet-status">
-                <p>Connect your Xaman wallet to begin</p>
-                <button class="btn primary" id="connect-wallet-btn">
-                    Connect with Xaman
-                </button>
-            </div>
-        </section>
-
-        <!-- Token Configuration Section -->
-        <section class="token-section" style="display: none;" id="token-section">
-            <h2>🪙 Token Configuration</h2>
-            <div class="form-group">
-                <label>Token Type:</label>
-                <select id="token-type">
-                    <option value="XRP">XRP (Native)</option>
-                    <option value="custom">Custom Token</option>
-                </select>
-            </div>
-            
-            <div id="custom-token-config" style="display: none;">
-                <div class="form-group">
-                    <label>Currency Code:</label>
-                    <input type="text" id="currency-code" placeholder="e.g., USD, EUR, SOLO" maxlength="3">
+            <div class="connection-status" id="connection-status">
+                <div class="status-indicator" id="status-indicator"></div>
+                <span id="connection-text">Not Connected</span>
+                <button class="btn btn-primary" id="connect-xaman">Connect Wallet</button>
+                <div id="xaman-wallet-info" style="display: none;">
+                    <span id="xaman-wallet-address"></span>
+                    <button class="btn btn-secondary" id="disconnect-xaman" style="display: none;">Disconnect</button>
                 </div>
+                <div id="xaman-loading" style="display: none;">Connecting...</div>
+                <div id="xaman-status-text"></div>
+            </div>
+        </div>
+
+        <!-- Main Title -->
+        <div class="main-title">
+            <h1>Automated Token Distribution</h1>
+            <p>Execute efficient token airdrops with multiple execution methods and real-time monitoring</p>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Left Panel: Setup -->
+            <div class="section">
+                <h2 class="section-title">Distribution Setup</h2>
                 
+                <!-- Distribution Method Selection -->
                 <div class="form-group">
-                    <label>Issuer Address:</label>
-                    <input type="text" id="issuer-address" placeholder="rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH">
-                </div>
-                
-                <div class="trust-line-warning">
-                    ⚠️ Recipients must have trust lines set for custom tokens
-                </div>
-            </div>
-        </section>
-
-        <!-- Recipients Section -->
-        <section class="recipients-section" style="display: none;" id="recipients-section">
-            <h2>📋 Recipients</h2>
-            
-            <div class="upload-area" id="upload-area">
-                <div class="upload-content">
-                    <div class="upload-icon">�</div>
-                    <h3>Upload Recipients File</h3>
-                    <p>Drop CSV or TXT file here, or click to browse</p>
-                    <input type="file" id="file-input" accept=".csv,.txt" hidden>
-                    <button class="btn secondary" onclick="document.getElementById('file-input').click()">
-                        Choose File
-                    </button>
-                </div>
-            </div>
-            
-            <div class="file-format-help">
-                <h4>File Format:</h4>
-                <div class="format-examples">
-                    <div class="format-example">
-                        <strong>CSV Format:</strong>
-                        <code>address,amount<br>rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH,100<br>rPEPPER7kfTD9w2To4CQk6UCfuHM9c6GDY,250</code>
-                    </div>
-                    <div class="format-example">
-                        <strong>TXT Format:</strong>
-                        <code>rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH,100<br>rPEPPER7kfTD9w2To4CQk6UCfuHM9c6GDY,250</code>
+                    <label>Distribution Method</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="distribution-method" value="equal" checked>
+                            Equal to All
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="distribution-method" value="proportional">
+                            Proportional by Count
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="distribution-method" value="custom">
+                            Custom Amounts
+                        </label>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- Distribution Configuration -->
-        <section class="distribution-section" style="display: none;" id="distribution-section">
-            <h2>⚖️ Distribution Method</h2>
-            
-            <div class="method-selector">
-                <label class="method-option">
-                    <input type="radio" name="distribution-method" value="equal" checked>
-                    <span class="method-label">
-                        <strong>Equal Distribution</strong>
-                        <small>Same amount to all recipients</small>
-                    </span>
-                </label>
-                
-                <label class="method-option">
-                    <input type="radio" name="distribution-method" value="proportional">
-                    <span class="method-label">
-                        <strong>Proportional</strong>
-                        <small>Based on existing balances</small>
-                    </span>
-                </label>
-                
-                <label class="method-option">
-                    <input type="radio" name="distribution-method" value="custom">
-                    <span class="method-label">
-                        <strong>Custom Amounts</strong>
-                        <small>Amounts specified in file</small>
-                    </span>
-                </label>
-            </div>
-            
-            <div id="equal-config" class="distribution-config">
+                <!-- Token Selection -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="token-select">Select Token</label>
+                        <select id="token-select">
+                            <option value="">Choose a token...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="token-amount" id="amount-label">Amount per Recipient</label>
+                        <input type="number" id="token-amount" placeholder="10" step="0.000001">
+                        <small id="amount-help" style="color: #999; margin-top: 5px; display: block;">Amount each recipient will receive</small>
+                    </div>
+                </div>
+
+                <!-- File Format Selection -->
                 <div class="form-group">
-                    <label>Amount per recipient:</label>
-                    <input type="number" id="equal-amount" placeholder="100" step="0.000001" min="0.000001">
+                    <label>File Format</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="file-format" value="txt" checked>
+                            Simple Text (.txt)
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="file-format" value="csv">
+                            CSV with Data (.csv)
+                        </label>
+                    </div>
+                    <div id="format-help" class="format-help">
+                        <small style="color: #f5d942;">Simple Text Format:</small><br>
+                        <small style="color: #999;">One wallet address per line</small>
+                    </div>
                 </div>
-            </div>
-            
-            <div id="proportional-config" class="distribution-config" style="display: none;">
+
+                <!-- Recipients Management -->
                 <div class="form-group">
-                    <label>Total amount to distribute:</label>
-                    <input type="number" id="total-amount" placeholder="10000" step="0.000001" min="0.000001">
+                    <label for="recipient-file">Recipients File</label>
+                    <input type="file" id="recipient-file" accept=".txt,.csv" />
+                </div>
+
+                <!-- TXT File Configuration (for Proportional/Custom) -->
+                <div class="form-group" id="txt-config-section" style="display: none;">
+                    <label id="txt-config-label">Configure Values for TXT File</label>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="default-value" id="default-value-label">Default Value</label>
+                            <input type="number" id="default-value" placeholder="1" step="0.000001" min="0">
+                            <small id="default-value-help" style="color: #999; margin-top: 5px; display: block;">Default value for all addresses</small>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: end;">
+                            <button class="btn btn-secondary" id="apply-default-values">Apply to All</button>
+                        </div>
+                    </div>
+                    <div style="max-height: 200px; overflow-y: auto; margin-top: 10px;" id="txt-values-container">
+                        <!-- Individual value inputs will be added here -->
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="manual-address">Add Manual Address</label>
+                        <input type="text" id="manual-address" placeholder="rXXXXXXXXXXXXXXXXXXXXXXXXX">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: end;">
+                        <button class="btn btn-secondary" id="add-recipient">Add Recipient</button>
+                    </div>
+                </div>
+
+                <!-- Preview Table -->
+                <div class="form-group" id="preview-section" style="display: none;">
+                    <label>Distribution Preview</label>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        <table class="preview-table" id="preview-table">
+                            <thead>
+                                <tr>
+                                    <th>Address</th>
+                                    <th style="text-align: right;">Count</th>
+                                    <th style="text-align: right;">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preview-body">
+                                <!-- Preview rows will be added here -->
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td>Total:</td>
+                                    <td style="text-align: right;" id="preview-total-count">0</td>
+                                    <td style="text-align: right;" id="preview-total-amount">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recipients List -->
+                <div class="form-group">
+                    <label>Recipients (<span id="recipient-count">0</span>)</label>
+                    <div class="recipients-list" id="recipients-list">
+                        <p style="color: #999; text-align: center; padding: 20px;">No recipients added yet</p>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <!-- Preview Section -->
-        <section class="preview-section" style="display: none;" id="preview-section">
-            <h2>� Distribution Preview</h2>
-            <div id="preview-content"></div>
-            <div class="preview-summary" id="preview-summary"></div>
-        </section>
-
-        <!-- Execute Section -->
-        <section class="execute-section" style="display: none;" id="execute-section">
-            <h2>🚀 Execute Airdrop</h2>
-            <div class="execute-info">
-                <p>Ready to execute your airdrop with Xaman signing.</p>
-                <p><strong>🔐 Secure:</strong> Your seed phrase never leaves your device</p>
-                <p><strong>📱 Simple:</strong> Just scan QR code in Xaman app to approve</p>
-            </div>
-            
-            <button class="btn primary large" id="execute-btn">
-                🔐 Sign & Execute with Xaman
-            </button>
-            
-            <div class="progress-section" id="progress-section" style="display: none;">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-fill"></div>
-                </div>
-                <div class="progress-text" id="progress-text">Preparing airdrop...</div>
-            </div>
-        </section>
-
-        <!-- Results Section -->
-        <section class="results-section" style="display: none;" id="results-section">
-            <h2>✅ Airdrop Results</h2>
-            <div id="results-content"></div>
-        </section>
-    </div>
-
-    <!-- Xaman QR Modal -->
-    <div id="xaman-qr-container" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🔐 Connect Xaman Wallet</h3>
-                <button id="close-qr-modal" class="close-btn">&times;</button>
-            </div>
-            
-            <div class="qr-section">
-                <div id="xaman-qr-code" class="qr-code">
-                    Loading QR code...
-                </div>
+            <!-- Right Panel: Execution -->
+            <div class="section">
+                <h2 class="section-title">Execution Methods</h2>
                 
-                <div id="xaman-status-text" class="status-text">
-                    Preparing connection...
+                <!-- Token Display -->
+                <div class="token-display" id="selected-token-display" style="display: none;">
+                    <div class="token-info">
+                        <div class="token-name" id="display-token-name">Token Name</div>
+                        <div class="token-balance" id="display-token-balance">Balance: 0</div>
+                    </div>
+                    <div class="token-amount">
+                        <strong id="display-total-amount">0</strong> <span id="display-currency">TOKEN</span>
+                    </div>
+                </div>
+
+                <!-- Progress -->
+                <div class="progress-container" id="progress-container" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">Ready to start...</div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="results-section" id="results-section" style="display: none;">
+                    <div class="results-container" id="results-container">
+                        <!-- Transaction results will be displayed here -->
+                    </div>
+                </div>
+
+                <!-- Execution Buttons -->
+                <div class="execution-methods">
+                    <div class="method-card">
+                        <div class="method-title">Sequential Payments</div>
+                        <div class="method-description">
+                            Cost-effective automated payments using only transaction fees (~0.000012 XRP each)
+                        </div>
+                        <button class="btn btn-primary" id="execute-airdrop">Execute Airdrop</button>
+                    </div>
+
+                    <div class="method-card">
+                        <div class="method-title">Batch Processing</div>
+                        <div class="method-description">
+                            Create batch authorization through Xaman for one-signature execution
+                        </div>
+                        <button class="btn btn-secondary" id="execute-batch">Execute Batch</button>
+                    </div>
+
+                    <div class="method-card">
+                        <div class="method-title">Simulated Mode</div>
+                        <div class="method-description">
+                            Test the flow without real transactions for validation and testing
+                        </div>
+                        <button class="btn btn-secondary" id="execute-simulated">Test Simulation</button>
+                    </div>
+                </div>
+
+                <!-- Cost Estimation -->
+                <div class="form-group">
+                    <div class="alert alert-info" id="cost-estimation" style="display: none;">
+                        <strong>Cost Estimation:</strong>
+                        <div id="cost-details"></div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="modal-footer">
-                <p>Scan the QR code with your Xaman app to connect</p>
+        </div>
+
+        <!-- Xaman QR Modal Popup -->
+        <div id="xaman-qr-container" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Connect Your Xaman Wallet</h3>
+                    <button class="modal-close" id="close-qr-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Scan this QR code with your Xaman app to connect your wallet:</p>
+                    <div id="xaman-qr-code" class="qr-code-container"></div>
+                    <div class="connection-instructions">
+                        <div class="instruction-step">
+                            <span class="step-number">1</span>
+                            <span>Open Xaman app on your phone</span>
+                        </div>
+                        <div class="instruction-step">
+                            <span class="step-number">2</span>
+                            <span>Tap the scan button</span>
+                        </div>
+                        <div class="instruction-step">
+                            <span class="step-number">3</span>
+                            <span>Scan the QR code above</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Payment Progress Modal -->
-    <div id="payment-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🔐 Xaman Payment Signing</h3>
-            </div>
-            <div class="modal-body">
-                <div id="payment-qr-code" style="text-align: center; margin-bottom: 20px;">
-                    <img id="payment-qr-image" src="" alt="Payment QR Code" style="width: 256px; height: 256px;">
-                </div>
-                <div id="payment-status">
-                    <p id="payment-status-text">Preparing batch payment...</p>
-                </div>
-                <div id="payment-progress" style="margin-top: 20px;">
-                    <div class="progress-bar" style="width: 100%; height: 20px; background: #f3f4f6; border-radius: 10px; overflow: hidden;">
-                        <div id="payment-progress-fill" style="height: 100%; background: linear-gradient(90deg, #10b981, #059669); width: 0%; transition: width 0.3s ease;"></div>
-                    </div>
-                    <p id="payment-progress-text" style="margin-top: 10px; text-align: center;">Initializing...</p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <p>Scan with Xaman to sign and submit the batch payment</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="js/xaman-simple.js"></script>
+    <!-- Load full JavaScript functionality -->
+    <script src="https://unpkg.com/xrpl@2.7.0/dist/xrpl-latest-min.js"></script>
+    <script src="js/xaman-github.js"></script>
     <script src="js/xrpl-client.js"></script>
-    <script src="js/app-production.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
